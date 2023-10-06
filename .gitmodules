@@ -1,3 +1,6 @@
 [submodule "lib/forge-std"]
 	path = lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/linea-attestation-registry"]
+	path = lib/linea-attestation-registry
+	url = https://github.com/consensys/linea-attestation-registry
