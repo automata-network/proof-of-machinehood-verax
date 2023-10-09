@@ -70,13 +70,13 @@ contract AndroidSafetyNet is AttestationVerificationBase {
                     }
                     validNonce = true;
                 } else if (decodedKey.eq("ctsProfileMatch")) {
-                    string memory value = JSONParserLib.decodeString(content[i].value());
+                    string memory value = content[i].value();
                     if (!value.eq(EXPECTED_TRUE)) {
                         revert Invalid_JWT_Payload();
                     }
                     validCtsProfile = true;
                 } else if (decodedKey.eq("basicIntegrity")) {
-                    string memory value = JSONParserLib.decodeString(content[i].value());
+                    string memory value = content[i].value();
                     if (!value.eq(EXPECTED_TRUE)) {
                         revert Invalid_JWT_Payload();
                     }

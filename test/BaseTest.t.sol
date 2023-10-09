@@ -20,6 +20,7 @@ abstract contract BaseTest is Test {
     PortalRegistry internal portalRegistry = PortalRegistry(vm.envAddress("PORTAL_REGISTRY_ADDRESS"));
     SchemaRegistry internal schemaRegistry = SchemaRegistry(vm.envAddress("SCHEMA_REGISTRY_ADDRESS"));
     ModuleRegistry internal moduleRegistry = ModuleRegistry(vm.envAddress("MODULE_REGISTRY_ADDRESS"));
+    AttestationRegistry internal attestationRegistry = AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
     MachinehoodModule internal module;
     MockPortal internal portal;
 
@@ -53,6 +54,7 @@ abstract contract BaseTest is Test {
 
         // deploys portal
         address[] memory modules = new address[](1);
+        modules[0] = address(module);
 
         portal = new MockPortal(modules, router);
 
