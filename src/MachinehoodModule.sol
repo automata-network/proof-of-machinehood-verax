@@ -2,13 +2,14 @@
 pragma solidity ^0.8.0;
 
 import {AbstractModule, AttestationPayload} from "verax-contracts/interface/AbstractModule.sol";
-import {AttestationVerificationBase} from "./lib/AttestationVerificationBase.sol";
+import {AttestationVerificationBase} from "./lib/verification/AttestationVerificationBase.sol";
+import {Ownable} from "solady/Milady.sol";
 
-contract MachinehoodModule is AbstractModule {
-    bytes32 public constant MACHINEHOOD_SCHEMA_ID = 0xf99d88e9eaa031f7680ac5140274e9fa71ee9a935ada88c57834946513781925;
+contract MachinehoodModule is AbstractModule, Ownable {
+    // keccak256(bytes("bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"))
+    bytes32 public constant MACHINEHOOD_SCHEMA_ID = 0xfcd7908635f4a15e4c4ae351f13f9aa393e56e67aca82e5ffd3cf5c463464ee7;
 
     struct ValidationPayloadStruct {
-        DeviceType device;
         bytes attStmt;
         bytes authData;
         bytes clientData;
@@ -19,14 +20,24 @@ contract MachinehoodModule is AbstractModule {
         ANDROID
     }
 
-    // DeviceType => DeviceType string => attestation verification contract address
-    // 1. DeviceType.ANDROID => "android-safety-net"
-    mapping(DeviceType => mapping(string => address)) private verifyingAddresses;
+    // DeviceType => attestation verification contract address
+    mapping(DeviceType => address) private verifyingAddresses;
+
+    event SupportedDeviceUpdated(DeviceType device, address verify);
 
     error Attestation_Should_Not_Expire();
     error Invalid_Schema_Id();
     error Invalid_Proof_Hash();
     error Unsupported_Device_Type();
+
+    constructor() {
+        _initializeOwner(msg.sender);
+    }
+
+    function configureSupportedDevice(DeviceType device, address verify) external onlyOwner {
+        verifyingAddresses[device] = verify;
+        emit SupportedDeviceUpdated(device, verify);
+    }
 
     function run(AttestationPayload memory attestationPayload, bytes memory validationPayload, address, uint256)
         public
@@ -44,8 +55,8 @@ contract MachinehoodModule is AbstractModule {
             revert Attestation_Should_Not_Expire();
         }
 
-        (bytes32 walletAddress, string memory deviceType, bytes32 proofHash) =
-            abi.decode(attestationPayload.attestationData, (bytes32, string, bytes32));
+        (bytes32 walletAddress, DeviceType deviceType, bytes32 proofHash) =
+            abi.decode(attestationPayload.attestationData, (bytes32, DeviceType, bytes32));
 
         if (proofHash != keccak256(validationPayload)) {
             revert Invalid_Proof_Hash();
@@ -53,11 +64,13 @@ contract MachinehoodModule is AbstractModule {
 
         ValidationPayloadStruct memory decoded = abi.decode(validationPayload, (ValidationPayloadStruct));
 
-        address verify = verifyingAddresses[decoded.device][deviceType];
+        address verify = verifyingAddresses[deviceType];
         if (verify == address(0)) {
             revert Unsupported_Device_Type();
         }
 
-        AttestationVerificationBase(verify).verifyAttStmt(decoded.attStmt, decoded.authData, decoded.clientData);
+        AttestationVerificationBase(verify).verifyAttStmt(
+            walletAddress, decoded.attStmt, decoded.authData, decoded.clientData
+        );
     }
 }
