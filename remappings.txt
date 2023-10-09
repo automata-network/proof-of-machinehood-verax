@@ -1,0 +1,2 @@
+verax-contracts/=lib/linea-attestation-registry/contracts/src/
+solady/=lib/solady/src/
