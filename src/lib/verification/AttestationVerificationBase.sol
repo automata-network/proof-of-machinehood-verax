@@ -42,7 +42,7 @@ abstract contract AttestationVerificationBase is Ownable {
     function _verifyChallenge(bytes32 challenge, bytes memory clientData) internal pure {
         string memory clientDataJson = string(clientData);
         (,, string memory parsedChallenge) = _parseClientDataJson(clientDataJson);
-        string memory encodedInputChallenge = Base64.encode(abi.encodePacked(challenge));
+        string memory encodedInputChallenge = Base64.encode(bytes(LibString.toHexString(abi.encodePacked(challenge))));
         if (!parsedChallenge.eq(encodedInputChallenge)) {
             revert Invalid_Challenge();
         }

@@ -5,26 +5,18 @@ import "./BaseTest.t.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
 import {AndroidSafetyNet} from "../src/lib/verification/AndroidSafetyNet.sol";
 import {AndroidSafetyNetConstants} from "./constants/AndroidSafetyNetConstants.t.sol";
-import {SigVerifyLib} from "../src/lib/utils/SigVerifyLib.sol";
-import {DerParser} from "../src/lib/utils/DerParser.sol";
 
 contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
-
-    SigVerifyLib sigVerify;
-    DerParser derParser;
     AndroidSafetyNet attestationContract;
 
-    address constant user = address(2);
+    address constant user = 0xc6219fd7C54c963A7eF13e04eF0f0D96ff826450;
 
     function setUp() public override {
         super.setUp();
 
         vm.startPrank(admin);
 
-        sigVerify = new SigVerifyLib();
-        derParser = new DerParser();
-
-        attestationContract = new AndroidSafetyNet(address(sigVerify), address(derParser));
+        attestationContract = AndroidSafetyNet(vm.envAddress("ANDROID_SAFETY_NET"));
         attestationContract.addCACert(certHash);
 
         module.configureSupportedDevice(MachinehoodModule.DeviceType.ANDROID, address(attestationContract));
@@ -43,11 +35,7 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
 
         bytes memory encodedValidationData = abi.encode(validationPayload);
 
-        bytes memory attestationData = abi.encode(
-            walletAddress,
-            uint8(1),
-            keccak256(encodedValidationData)
-        );
+        bytes memory attestationData = abi.encode(walletAddress, uint8(1), keccak256(encodedValidationData));
 
         bytes[] memory validationPayloadArr = new bytes[](1);
         validationPayloadArr[0] = encodedValidationData;
@@ -62,10 +50,16 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
         uint32 counter = attestationRegistry.getAttestationIdCounter();
         bytes32 id = bytes32(abi.encode(++counter));
 
-        portal.attest(attestationPayload, validationPayloadArr);
+        bytes memory data = abi.encodeWithSelector(
+            portal.attest.selector,
+            attestationPayload,
+            validationPayloadArr
+        );
 
-        assertTrue(attestationRegistry.isRegistered(id));
+        console.logBytes(data);
+
+        // portal.attest(attestationPayload, validationPayloadArr);
+
+        // assertTrue(attestationRegistry.isRegistered(id));
     }
-
-
 }

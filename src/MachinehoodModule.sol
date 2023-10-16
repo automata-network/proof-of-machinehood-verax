@@ -17,7 +17,9 @@ contract MachinehoodModule is AbstractModule, Ownable {
 
     enum DeviceType {
         INVALID,
-        ANDROID
+        ANDROID,
+        TPM,
+        YUBIKEY
     }
 
     // DeviceType => attestation verification contract address
