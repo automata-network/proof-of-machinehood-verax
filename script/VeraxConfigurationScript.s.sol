@@ -31,7 +31,9 @@ contract VeraxConfigurationScript is Script {
         );
 
         // registers module
-        moduleRegistry.register("MachinehoodModule", "https://docs.ata.network/automata-2.0/proof-of-machinehood", address(module));
+        moduleRegistry.register(
+            "MachinehoodModule", "https://docs.ata.network/automata-2.0/proof-of-machinehood", address(module)
+        );
 
         // registers portal
         portalRegistry.register(

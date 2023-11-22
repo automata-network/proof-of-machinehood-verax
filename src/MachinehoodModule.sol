@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {AbstractModule, AttestationPayload} from "verax-contracts/interface/AbstractModule.sol";
-import {AttestationVerificationBase} from "./lib/verification/AttestationVerificationBase.sol";
+import {AttestationVerificationBase} from "@automata-network/machinehood-contracts/AttestationVerificationBase.sol";
 import {Ownable} from "solady/Milady.sol";
 
 contract MachinehoodModule is AbstractModule, Ownable {
@@ -72,7 +72,7 @@ contract MachinehoodModule is AbstractModule, Ownable {
         }
 
         AttestationVerificationBase(verify).verifyAttStmt(
-            walletAddress, decoded.attStmt, decoded.authData, decoded.clientData
+            abi.encodePacked(walletAddress), decoded.attStmt, decoded.authData, decoded.clientData
         );
     }
 }

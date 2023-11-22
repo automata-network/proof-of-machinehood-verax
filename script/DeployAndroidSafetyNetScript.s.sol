@@ -2,10 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
-import {AndroidSafetyNet} from "../src/lib/verification/AndroidSafetyNet.sol";
+import {AndroidSafetyNet} from "@automata-network/machinehood-contracts/AndroidSafetyNet.sol";
 
 contract DeployAndroidSafetyNetScript is Script {
-
     AndroidSafetyNet attestation;
 
     function run() public {
