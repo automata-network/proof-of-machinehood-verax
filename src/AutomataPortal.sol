@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {DefaultPortal} from "verax-contracts/portal/DefaultPortal.sol";
+import {DefaultPortal} from "verax-contracts/DefaultPortal.sol";
 import {Ownable} from "solady/Milady.sol";
 
 /**

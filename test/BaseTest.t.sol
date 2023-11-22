@@ -7,11 +7,14 @@ import {PortalRegistry} from "verax-contracts/PortalRegistry.sol";
 import {ModuleRegistry} from "verax-contracts/ModuleRegistry.sol";
 import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
 
+import {SigVerifyLib} from "@automata-network/machinehood-contracts/utils/SigVerifyLib.sol";
+import {DerParser} from "@automata-network/machinehood-contracts/utils/DerParser.sol";
+
 import {AutomataPortal} from "../src/AutomataPortal.sol";
 import {MachinehoodModule} from "../src/MachinehoodModule.sol";
 
 abstract contract BaseTest is Test {
-    address internal constant registryOwner = 0x809e815596AbEB3764aBf81BE2DC39fBBAcc9949;
+    address internal constant registryOwner = 0x39241A22eA7162C206409aAA2E4a56f9a79c15AB;
     address internal constant admin = 0x95d06B395F04dc1bBD0CE9fcC501D7044ea25DAd;
     string internal forkUrl = vm.envString("RPC_URL");
     address internal router = vm.envAddress("ROUTER_ADDRESS");
@@ -20,52 +23,59 @@ abstract contract BaseTest is Test {
     ModuleRegistry internal moduleRegistry = ModuleRegistry(vm.envAddress("MODULE_REGISTRY_ADDRESS"));
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
-    MachinehoodModule internal module = MachinehoodModule(vm.envAddress("MACHINEHOOD_MODULE_ADDRESS"));
-    AutomataPortal internal portal = AutomataPortal(vm.envAddress("AUTOMATA_PORTAL_ADDRESS"));
+    
+    SigVerifyLib sigVerify;
+    DerParser derParser;
+    
+    MachinehoodModule internal module;
+    AutomataPortal internal portal;
 
     function setUp() public virtual {
         uint256 fork = vm.createFork(forkUrl);
         vm.selectFork(fork);
 
-        // // adds admin as the issuer
-        // vm.prank(registryOwner);
-        // portalRegistry.setIssuer(admin);
+        sigVerify = new SigVerifyLib();
+        derParser = new DerParser();
 
-        // vm.startPrank(admin);
+        // adds admin as the issuer
+        vm.prank(registryOwner);
+        portalRegistry.setIssuer(admin);
 
-        // // registers the schema
-        // schemaRegistry.createSchema(
-        //     "Machinehood Attestation",
-        //     "https://docs.ata.network/automata-2.0/proof-of-machinehood",
-        //     "",
-        //     "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
-        // );
+        vm.startPrank(admin);
 
-        // // deploys the module
-        // module = new MachinehoodModule();
+        // registers the schema
+        schemaRegistry.createSchema(
+            "Machinehood Attestation",
+            "https://docs.ata.network/automata-2.0/proof-of-machinehood",
+            "",
+            "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
+        );
 
-        // // registers module
-        // moduleRegistry.register("MachinehoodModule", "module-description", address(module));
+        // deploys the module
+        module = new MachinehoodModule();
 
-        // // deploys portal
-        // address[] memory modules = new address[](1);
-        // modules[0] = address(module);
+        // registers module
+        moduleRegistry.register("MachinehoodModule", "module-description", address(module));
 
-        // portal = new AutomataPortal(modules, router);
+        // deploys portal
+        address[] memory modules = new address[](1);
+        modules[0] = address(module);
 
-        // portalRegistry.register(
-        //     address(portal),
-        //     "MachinehoodPortal",
-        //     "portal-description",
-        //     false, // not-revocable
-        //     "portal-owner-name"
-        // );
+        portal = new AutomataPortal(modules, router);
 
-        // vm.stopPrank();
+        portalRegistry.register(
+            address(portal),
+            "MachinehoodPortal",
+            "portal-description",
+            false, // not-revocable
+            "portal-owner-name"
+        );
+
+        vm.stopPrank();
     }
 
     function testSetup() public {
-        // assertTrue(portalRegistry.isIssuer(admin));
+        assertTrue(portalRegistry.isIssuer(admin));
         assertTrue(schemaRegistry.isRegistered(module.MACHINEHOOD_SCHEMA_ID()));
         assertTrue(moduleRegistry.isRegistered(address(module)));
         assertTrue(portalRegistry.isRegistered(address(portal)));
