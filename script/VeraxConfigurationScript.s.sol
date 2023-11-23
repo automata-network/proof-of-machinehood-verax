@@ -16,7 +16,7 @@ contract VeraxConfigurationScript is Script {
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
     MachinehoodModule internal module = MachinehoodModule(vm.envAddress("MACHINEHOOD_MODULE_ADDRESS"));
-    MachinehoodPortal internal portal = MachinehoodPortal(vm.envAddress("AUTOMATA_PORTAL_ADDRESS"));
+    MachinehoodPortal internal portal = MachinehoodPortal(vm.envAddress("MACHINEHOOD_PORTAL_ADDRESS"));
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
