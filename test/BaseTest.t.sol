@@ -11,7 +11,9 @@ import {SigVerifyLib} from "@automata-network/machinehood-contracts/utils/SigVer
 import {DerParser} from "@automata-network/machinehood-contracts/utils/DerParser.sol";
 
 import {AutomataPortal} from "../src/AutomataPortal.sol";
-import {MachinehoodModule} from "../src/MachinehoodModule.sol";
+import {
+    MachinehoodModule, ValidationPayloadStruct, AttestationPayload, DeviceType
+} from "../src/MachinehoodModule.sol";
 
 abstract contract BaseTest is Test {
     address internal constant registryOwner = 0x39241A22eA7162C206409aAA2E4a56f9a79c15AB;
@@ -23,10 +25,10 @@ abstract contract BaseTest is Test {
     ModuleRegistry internal moduleRegistry = ModuleRegistry(vm.envAddress("MODULE_REGISTRY_ADDRESS"));
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
-    
+
     SigVerifyLib sigVerify;
     DerParser derParser;
-    
+
     MachinehoodModule internal module;
     AutomataPortal internal portal;
 

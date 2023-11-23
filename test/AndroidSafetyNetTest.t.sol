@@ -24,7 +24,7 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
         attestationContract = new AndroidSafetyNet(address(sigVerify), address(derParser));
         attestationContract.addCACert(certHash);
 
-        module.configureSupportedDevice(MachinehoodModule.DeviceType.ANDROID, address(attestationContract));
+        module.configureSupportedDevice(DeviceType.ANDROID, address(attestationContract));
 
         vm.stopPrank();
     }
@@ -32,11 +32,8 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
     function testAttest() public {
         bytes32 walletAddress = bytes32(uint256(uint160(user)));
 
-        MachinehoodModule.ValidationPayloadStruct memory validationPayload = MachinehoodModule.ValidationPayloadStruct({
-            attStmt: encodedAttStmt,
-            authData: authData,
-            clientData: clientDataJSON
-        });
+        ValidationPayloadStruct memory validationPayload =
+            ValidationPayloadStruct({attStmt: encodedAttStmt, authData: authData, clientData: clientDataJSON});
 
         bytes memory encodedValidationData = abi.encode(validationPayload);
 
