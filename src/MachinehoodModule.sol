@@ -5,22 +5,22 @@ import {AbstractModule, AttestationPayload} from "verax-contracts/abstracts/Abst
 import {AttestationVerificationBase} from "@automata-network/machinehood-contracts/AttestationVerificationBase.sol";
 import {Ownable} from "solady/Milady.sol";
 
+struct ValidationPayloadStruct {
+    bytes attStmt;
+    bytes authData;
+    bytes clientData;
+}
+
+enum DeviceType {
+    INVALID,
+    ANDROID,
+    TPM,
+    YUBIKEY
+}
+
 contract MachinehoodModule is AbstractModule, Ownable {
     // keccak256(bytes("bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"))
     bytes32 public constant MACHINEHOOD_SCHEMA_ID = 0xfcd7908635f4a15e4c4ae351f13f9aa393e56e67aca82e5ffd3cf5c463464ee7;
-
-    struct ValidationPayloadStruct {
-        bytes attStmt;
-        bytes authData;
-        bytes clientData;
-    }
-
-    enum DeviceType {
-        INVALID,
-        ANDROID,
-        TPM,
-        YUBIKEY
-    }
 
     // DeviceType => attestation verification contract address
     mapping(DeviceType => address) private verifyingAddresses;
