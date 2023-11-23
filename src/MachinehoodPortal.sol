@@ -8,7 +8,7 @@ import {Ownable} from "solady/Milady.sol";
  * @notice This is a custom Portal made to allow re-configuration of modules.
  */
 
-contract AutomataPortal is DefaultPortal, Ownable {
+contract MachinehoodPortal is DefaultPortal, Ownable {
     constructor(address[] memory modules, address router) DefaultPortal(modules, router) {
         _initializeOwner(msg.sender);
     }

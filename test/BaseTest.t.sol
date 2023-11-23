@@ -10,7 +10,7 @@ import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
 import {SigVerifyLib} from "@automata-network/machinehood-contracts/utils/SigVerifyLib.sol";
 import {DerParser} from "@automata-network/machinehood-contracts/utils/DerParser.sol";
 
-import {AutomataPortal} from "../src/AutomataPortal.sol";
+import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
 import {
     MachinehoodModule, ValidationPayloadStruct, AttestationPayload, DeviceType
 } from "../src/MachinehoodModule.sol";
@@ -30,7 +30,7 @@ abstract contract BaseTest is Test {
     DerParser derParser;
 
     MachinehoodModule internal module;
-    AutomataPortal internal portal;
+    MachinehoodPortal internal portal;
 
     function setUp() public virtual {
         uint256 fork = vm.createFork(forkUrl);
@@ -63,7 +63,7 @@ abstract contract BaseTest is Test {
         address[] memory modules = new address[](1);
         modules[0] = address(module);
 
-        portal = new AutomataPortal(modules, router);
+        portal = new MachinehoodPortal(modules, router);
 
         portalRegistry.register(
             address(portal),

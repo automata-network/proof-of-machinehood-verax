@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AutomataPortal} from "../../AutomataPortal.sol";
+import {MachinehoodPortal} from "../../MachinehoodPortal.sol";
 import {MachinehoodModule, ValidationPayloadStruct, AttestationPayload, DeviceType} from "../../MachinehoodModule.sol";
 import {MockERC20} from "./MockERC20.sol";
 import {AttestationRegistry, Attestation} from "verax-contracts/AttestationRegistry.sol";
@@ -10,7 +10,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract Faucet is Ownable {
     uint256 public attestationValidityDurationInSeconds;
     AttestationRegistry public immutable attestationRegistry;
-    AutomataPortal public immutable portal;
+    MachinehoodPortal public immutable portal;
     MachinehoodModule public immutable module;
     MockERC20 public immutable token;
 
@@ -21,7 +21,7 @@ contract Faucet is Ownable {
 
     constructor(address _attestationRegistry, address _portal, address _module, address _token) {
         attestationRegistry = AttestationRegistry(_attestationRegistry);
-        portal = AutomataPortal(_portal);
+        portal = MachinehoodPortal(_portal);
         module = MachinehoodModule(_module);
         token = MockERC20(_token);
     }

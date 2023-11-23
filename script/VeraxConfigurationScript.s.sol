@@ -6,7 +6,7 @@ import {SchemaRegistry} from "verax-contracts/SchemaRegistry.sol";
 import {PortalRegistry} from "verax-contracts/PortalRegistry.sol";
 import {ModuleRegistry} from "verax-contracts/ModuleRegistry.sol";
 import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
-import {AutomataPortal} from "../src/AutomataPortal.sol";
+import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
 import {MachinehoodModule} from "../src/MachinehoodModule.sol";
 
 contract VeraxConfigurationScript is Script {
@@ -16,7 +16,7 @@ contract VeraxConfigurationScript is Script {
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
     MachinehoodModule internal module = MachinehoodModule(vm.envAddress("MACHINEHOOD_MODULE_ADDRESS"));
-    AutomataPortal internal portal = AutomataPortal(vm.envAddress("AUTOMATA_PORTAL_ADDRESS"));
+    MachinehoodPortal internal portal = MachinehoodPortal(vm.envAddress("AUTOMATA_PORTAL_ADDRESS"));
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");

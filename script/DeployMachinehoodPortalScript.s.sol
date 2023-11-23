@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
-import {AutomataPortal} from "../src/AutomataPortal.sol";
+import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
 
-contract DeployAutomataPortalScript is Script {
-    AutomataPortal portal;
+contract DeployMachinehoodPortalScript is Script {
+    MachinehoodPortal portal;
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
@@ -15,7 +15,7 @@ contract DeployAutomataPortalScript is Script {
         address[] memory modules = new address[](1);
         modules[0] = vm.envAddress("MACHINEHOOD_MODULE_ADDRESS");
 
-        portal = new AutomataPortal(
+        portal = new MachinehoodPortal(
             modules,
             router
         );
