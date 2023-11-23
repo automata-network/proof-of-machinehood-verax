@@ -36,7 +36,7 @@ contract Faucet is Ownable {
             return false;
         } else {
             Attestation memory attestation = attestationRegistry.getAttestation(attestationId);
-            return _attestationHasExpired(attestation);
+            return !_attestationHasExpired(attestation);
         }
     }
 
