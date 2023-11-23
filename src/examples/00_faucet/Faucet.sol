@@ -67,24 +67,30 @@ contract Faucet is Ownable {
         bytes calldata clientData,
         bytes calldata attStmt
     ) external {
-        bytes32 walletAddress = bytes32(uint256(uint160(user)));
+        {
+            bytes32 walletAddress = bytes32(uint256(uint160(user)));
 
-        ValidationPayloadStruct memory validationPayload =
-            ValidationPayloadStruct({attStmt: attStmt, authData: authData, clientData: clientData});
+            ValidationPayloadStruct memory validationPayload =
+                ValidationPayloadStruct({attStmt: attStmt, authData: authData, clientData: clientData});
 
-        bytes memory encodedValidationData = abi.encode(validationPayload);
-        bytes memory attestationData = abi.encode(walletAddress, device, keccak256(encodedValidationData));
-        bytes[] memory validationPayloadArr = new bytes[](1);
-        validationPayloadArr[0] = encodedValidationData;
+            bytes memory encodedValidationData = abi.encode(validationPayload);
+            bytes memory attestationData = abi.encode(walletAddress, device, keccak256(encodedValidationData));
+            bytes[] memory validationPayloadArr = new bytes[](1);
+            validationPayloadArr[0] = encodedValidationData;
 
-        AttestationPayload memory attestationPayload = AttestationPayload({
-            schemaId: module.MACHINEHOOD_SCHEMA_ID(),
-            expirationDate: uint64(block.timestamp + attestationValidityDurationInSeconds),
-            subject: abi.encodePacked(user), // stores the wallet address as the attestation subject
-            attestationData: attestationData
-        });
+            AttestationPayload memory attestationPayload = AttestationPayload({
+                schemaId: module.MACHINEHOOD_SCHEMA_ID(),
+                expirationDate: uint64(block.timestamp + attestationValidityDurationInSeconds),
+                subject: abi.encodePacked(user), // stores the wallet address as the attestation subject
+                attestationData: attestationData
+            });
 
-        portal.attest(attestationPayload, validationPayloadArr);
+            portal.attest(attestationPayload, validationPayloadArr);
+        }
+
+        uint32 attestationCounter = attestationRegistry.getAttestationIdCounter();
+        bytes32 attestationId = bytes32(abi.encode(attestationCounter));
+        recipientToAttestation[user] = attestationId;
     }
 
     function _attestationHasExpired(Attestation memory attestation) private view returns (bool) {
