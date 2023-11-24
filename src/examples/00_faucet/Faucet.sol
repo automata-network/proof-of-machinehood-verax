@@ -44,10 +44,7 @@ contract Faucet is Ownable {
         uint256 amount = 0.1 ether;
         (bytes32 walletAddress,,) = abi.decode(attestation.attestationData, (bytes32, uint8, bytes32));
         address user = address(uint160(uint256(walletAddress)));
-        if (token.balanceOf(address(this)) < amount) {
-            token.mint(address(this), 100 ether);
-        }
-        token.transfer(user, amount);
+        token.mint(user, amount);
     }
 
     function _attestationIsValid(Attestation memory attestation) private view returns (bool) {
