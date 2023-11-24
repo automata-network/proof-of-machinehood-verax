@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createCredential } from './modules/webauthn';
 import './App.css';
 
 function App() {
@@ -14,24 +15,44 @@ function App() {
 
 function MainComponent(): JSX.Element {
   let [requestEnabled, setRequestEnabled] = useState(false);
+  let [walletAddress, setWalletAddress] = useState("");
+
+  useEffect(() => {
+    if (walletAddress.length > 0) {
+      // TODO: check if wallet address has made a valid attestation on chain
+      let walletHasValidAttestation = false;
+
+      const attest = async() => {
+        while (!walletHasValidAttestation) {
+          let beginAttesting = window.confirm("You must provide an attestation for this wallet before proceeding.");
+          if (beginAttesting) {
+            console.log("begin attesting...");
+            try {
+              const attestationParamObj = await createCredential(walletAddress);
+              // sends the transaction
+              // wait for confirmation
+              walletHasValidAttestation = true;
+            } catch (e) {
+              alert("Attestation failed");
+              break;
+            }
+          } else {
+            console.log("Cancelled...");
+            break;
+          }
+        }
+      }
+      
+      attest().then(() => {
+        setRequestEnabled(walletHasValidAttestation);
+      });
+    }
+  }, [walletAddress]);
 
   function updateWalletAddress(newWalletAddress: string) {
     console.log(newWalletAddress);
-
-    // TODO: check if wallet address has made a valid attestation on chain
-    let walletHasValidAttestation = false;
-    setRequestEnabled(walletHasValidAttestation);
-
-    while (!walletHasValidAttestation) {
-      let beginAttesting = window.confirm("You must provide an attestation for this wallet before proceeding.");
-      if (beginAttesting) {
-        console.log("begin attesting...");
-        setRequestEnabled(true);
-      } else {
-        console.log("Cancelled...");
-        break;
-      }
-    }
+    setRequestEnabled(false);
+    setWalletAddress(newWalletAddress);
   }
 
   // TODO: Conditionally rendering either HomeComponent, AttestForm or FaucetForm component
@@ -51,8 +72,7 @@ interface HomeProp {
 function HomeComponent(prop: HomeProp): JSX.Element {
   let [walletAddress, setWalletAddress] = useState("");
   
-  function handleSubmit() {
-      setWalletAddress(walletAddress);
+  function handleCheckAttestation() {
       prop.updateWalletCallback(walletAddress);
   }
 
@@ -67,7 +87,7 @@ function HomeComponent(prop: HomeProp): JSX.Element {
         onChange = {(e) => {
           setWalletAddress(e.target.value)
         }}/>
-      <button onClick={handleSubmit}> Submit </button>
+      <button onClick={handleCheckAttestation}> Check Attestation </button>
     </div>
   )
 }
