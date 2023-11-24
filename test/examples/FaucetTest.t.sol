@@ -7,7 +7,7 @@ import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol
 import "../BaseTest.t.sol";
 import {AndroidSafetyNetConstants} from "../constants/AndroidSafetyNetConstants.t.sol";
 
-import {Faucet, DeviceType} from "../../src/examples/00_faucet/Faucet.sol";
+import {Faucet} from "../../src/examples/00_faucet/Faucet.sol";
 import {MockERC20} from "../../src/examples/00_faucet/MockERC20.sol";
 
 /**
@@ -45,7 +45,6 @@ contract FaucetTest is BaseTest, AndroidSafetyNetConstants {
         faucet = new Faucet(
             address(attestationRegistry),
             address(portal),
-            address(module),
             address(mockToken)
         );
 
@@ -57,44 +56,57 @@ contract FaucetTest is BaseTest, AndroidSafetyNetConstants {
     function testFaucetConfiguration() public {
         assertEq(faucet.attestationValidityDurationInSeconds(), duration);
         assertEq(address(faucet.attestationRegistry()), address(attestationRegistry));
-        assertEq(address(faucet.portal()), address(portal));
-        assertEq(address(faucet.module()), address(module));
+        assertEq(faucet.machinehoodPortal(), address(portal));
         assertEq(address(faucet.token()), address(mockToken));
-    }
-
-    function testRequestBeforeAttesting() public {
-        vm.expectRevert(Faucet.Attestation_Not_Registered.selector);
-        faucet.requestTokens(user);
-        assertEq(mockToken.balanceOf(user), 0);
     }
 
     /// @notice Fuzzed test. The attestation might expire if we warp too far into the future...
     function testAttestThenRequestTokens(uint256 warp) public {
-        // check the AttestationRegistered event
-        uint32 counter = attestationRegistry.getAttestationIdCounter();
-        bytes32 id = bytes32(abi.encode(++counter));
-        vm.expectEmit(true, false, false, false, address(attestationRegistry));
-        emit AttestationRegistered(id);
+        bytes32 id = _attest();
 
-        faucet.attest(user, DeviceType.ANDROID, authData, clientDataJSON, encodedAttStmt);
-        assertTrue(attestationRegistry.isRegistered(id));
-        assertTrue(faucet.attestationIsValid(user));
+        assertTrue(faucet.attestationIsValid(id));
 
         uint256 expiry = block.timestamp + duration;
         warp = bound(warp, expiry - 3600, expiry + 3600);
         vm.warp(warp);
 
         bool expired = warp >= expiry;
-        assertEq(faucet.attestationIsValid(user), !expired);
+        assertEq(faucet.attestationIsValid(id), !expired);
         if (expired) {
-            vm.expectRevert(abi.encodeWithSelector(
-                Faucet.Attestation_Expired.selector,
-                id
-            ));
+            vm.expectRevert(abi.encodeWithSelector(Faucet.Attestation_Expired_Or_Invalid.selector, id));
         }
 
-        faucet.requestTokens(user);
-        uint256 expectedBalance = expired ? 0 : 0.1 ether; 
-        assertEq(mockToken.balanceOf(user), expectedBalance);       
+        faucet.requestTokens(id);
+        uint256 expectedBalance = expired ? 0 : 0.1 ether;
+        assertEq(mockToken.balanceOf(user), expectedBalance);
+    }
+
+    function _attest() private returns (bytes32 id) {
+        // check the AttestationRegistered event
+        uint32 counter = attestationRegistry.getAttestationIdCounter();
+        id = bytes32(abi.encode(++counter));
+        vm.expectEmit(true, false, false, false, address(attestationRegistry));
+        emit AttestationRegistered(id);
+
+        bytes32 walletAddress = bytes32(uint256(uint160(user)));
+        ValidationPayloadStruct memory validationPayload =
+            ValidationPayloadStruct({attStmt: encodedAttStmt, authData: authData, clientData: clientDataJSON});
+
+        bytes memory encodedValidationData = abi.encode(validationPayload);
+
+        bytes memory attestationData = abi.encode(walletAddress, uint8(1), keccak256(encodedValidationData));
+
+        bytes[] memory validationPayloadArr = new bytes[](1);
+        validationPayloadArr[0] = encodedValidationData;
+
+        AttestationPayload memory attestationPayload = AttestationPayload({
+            schemaId: module.MACHINEHOOD_SCHEMA_ID(),
+            expirationDate: 0,
+            subject: bytes("test-subject"),
+            attestationData: attestationData
+        });
+
+        portal.attest(attestationPayload, validationPayloadArr);
+        assertTrue(attestationRegistry.isRegistered(id));
     }
 }
