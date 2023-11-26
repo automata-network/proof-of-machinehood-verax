@@ -1,7 +1,7 @@
 import forge from "node-forge";
 import asn1 from "asn1.js";
-import * as Asn1js from "asn1js/build/index";
-import * as Pkijs from "pkijs/build/index";
+import * as Asn1js from "asn1js";
+import * as Pkijs from "pkijs";
 import elliptic from "elliptic";
 
 export const ECDSASignature: any = asn1.define("ECDSASignature", function (this: any) {
