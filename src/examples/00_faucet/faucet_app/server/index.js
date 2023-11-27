@@ -74,7 +74,7 @@ app.post('/', async (req, res) => {
 })
 
 // Retrieve the attestation id for the provided user address
-// Sends zero hash in the response if no attestations were made
+// Sends zero hash in the response if no valid attestations were made
 app.get('/id', async (req, res) => {
     class AttestationStatus {
         constructor(id, status) {
