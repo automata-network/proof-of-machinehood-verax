@@ -1,5 +1,5 @@
 // dependencies
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({path: '../../../../.env'});
 
 const express = require('express');
 const app = express();
@@ -10,7 +10,7 @@ const ethers = require('ethers');
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || 'http://localhost:8545');
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 const attestationRegistryAddress = process.env.ATTESTATION_REGISTRY_ADDRESS;
-const machinehoodPortalAddress = process.env.MACHINEHOOD_PORTAL;
+const machinehoodPortalAddress = process.env.MACHINEHOOD_PORTAL_ADDRESS;
 const faucetAddress = process.env.FAUCET_DEMO;
 
 const { abi: FaucetABI } = require('../abi/Faucet.json');

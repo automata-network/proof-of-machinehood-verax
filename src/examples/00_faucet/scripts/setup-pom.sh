@@ -4,7 +4,7 @@ root="../../.."
 path="$root/lib/machinehood-contracts"
 pom_path="$path/script/script.sh"
 
-source .env
+source $root/.env
 source $pom_path
 
 cd $path

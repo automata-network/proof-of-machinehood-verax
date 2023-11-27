@@ -20,11 +20,8 @@ contract VeraxConfigurationScript is Script {
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
+
         vm.startBroadcast(deployerKey);
-
-        // TODO: We must make sure that deployerKey is granted with ISSUER_ROLE
-        // TODO: If run on a fork, how can we impersonate a known issuer?
-
         // registers the schema
         schemaRegistry.createSchema(
             "Machinehood Attestation",
@@ -46,7 +43,6 @@ contract VeraxConfigurationScript is Script {
             false, // not-revocable
             "test-owner"
         );
-
         vm.stopBroadcast();
     }
 }
