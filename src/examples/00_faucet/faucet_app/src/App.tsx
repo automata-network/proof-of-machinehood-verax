@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createCredential } from './modules/webauthn';
-import { BytesLike } from 'ethers';
 import { 
   provider,
   getAttestationId, 
@@ -61,6 +60,7 @@ function MainComponent(): JSX.Element {
                   }
               }
             } catch (e) {
+              console.log(e);
               alert("Attestation failed");
               break;
             }
@@ -82,7 +82,7 @@ function MainComponent(): JSX.Element {
   }, [walletAddress]);
 
   function updateWalletAddress(newWalletAddress: string) {
-    if (walletAddress === newWalletAddress) {
+    if (newWalletAddress.length === 0) {
       alert("Am I a joke to you?");
     } else {
       getAttestationId(newWalletAddress).then((attestation) => {
@@ -93,12 +93,26 @@ function MainComponent(): JSX.Element {
     }
   }
 
+  function handleRequestTokens() {
+    submitFaucetRequest(walletAddress).then((tx) => {
+      console.log(tx.hash);
+      alert("Tokens are coming your way! :)");
+    }).catch(e => {
+      console.log(e);
+      alert("Failed to request tokens");
+    })
+  }  
+
   // TODO: Conditionally rendering either HomeComponent, AttestForm or FaucetForm component
   // otherwise it looks ugly af
   return (
     <div>
       <HomeComponent updateWalletCallback={updateWalletAddress}/>
-      <button id = "request-btn" disabled = {!requestEnabled}> Request Tokens </button>
+      <button 
+        id = "request-btn" 
+        disabled = {!requestEnabled} 
+        onClick={handleRequestTokens}
+      > Request Tokens </button>
     </div>
   )
 }
