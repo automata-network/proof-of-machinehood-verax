@@ -12,6 +12,13 @@ interface ParsedCredential {
     authData: string
 }
 
+export interface ProcessedCredntial {
+    device: DeviceType,
+    attStmt: string,
+    clientData: string,
+    authData: string
+}
+
 // To match with the MachinehoodModule enum definition
 enum DeviceType {
     INVALID,
@@ -38,13 +45,6 @@ const enabledYubiKeyAAGUIDs = [
     "a4e9fc6d-4cbe-4758-b8ba-37598bb5bbaa",
     "0bb43545-fd2c-4185-87dd-feb0b2916ace",
 ];
-
-interface ProcessedCredntial {
-    device: DeviceType,
-    attStmt: string,
-    clientData: string,
-    authData: string
-}
 
 export async function createCredential(challenge: string) {
     let prefixedChallenge = checkPrefixThenPad(challenge);

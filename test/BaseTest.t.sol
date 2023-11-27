@@ -18,7 +18,7 @@ import {
 abstract contract BaseTest is Test {
     address internal constant registryOwner = 0x39241A22eA7162C206409aAA2E4a56f9a79c15AB;
     address internal constant admin = 0x95d06B395F04dc1bBD0CE9fcC501D7044ea25DAd;
-    string internal forkUrl = vm.envString("RPC_URL");
+    string internal forkUrl = vm.envString("FORK_URL");
     address internal router = vm.envAddress("ROUTER_ADDRESS");
     PortalRegistry internal portalRegistry = PortalRegistry(vm.envAddress("PORTAL_REGISTRY_ADDRESS"));
     SchemaRegistry internal schemaRegistry = SchemaRegistry(vm.envAddress("SCHEMA_REGISTRY_ADDRESS"));

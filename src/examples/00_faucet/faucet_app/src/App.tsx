@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { createCredential } from './modules/webauthn';
+import { BytesLike } from 'ethers';
+import { 
+  provider,
+  getAttestationId, 
+  submitAttestation, 
+  submitFaucetRequest 
+} from './modules/relayer';
 import './App.css';
+
+const REACT_APP_ATTESTATION_REGISTRY_ADDRESS = '0x3de3893aa4Cdea029e84e75223a152FD08315138';
 
 function App() {
   return (
@@ -19,19 +28,39 @@ function MainComponent(): JSX.Element {
 
   useEffect(() => {
     if (walletAddress.length > 0) {
-      // TODO: check if wallet address has made a valid attestation on chain
       let walletHasValidAttestation = false;
+      let attestationId: BytesLike;
 
       const attest = async() => {
+        const attestation = (await getAttestationId(walletAddress));
+        walletHasValidAttestation = attestation.status;
+        attestationId = walletHasValidAttestation ? attestation.id : '';
         while (!walletHasValidAttestation) {
           let beginAttesting = window.confirm("You must provide an attestation for this wallet before proceeding.");
           if (beginAttesting) {
             console.log("begin attesting...");
             try {
+              console.log("Getting credentials...");
               const attestationParamObj = await createCredential(walletAddress);
-              // sends the transaction
-              // wait for confirmation
-              walletHasValidAttestation = true;
+              console.log("Submitting attestations...");
+              const tx = await submitAttestation(walletAddress, attestationParamObj!);
+              if (tx.error) {
+                throw new Error(tx.error);
+              }
+              let txReceipt;
+              while (!txReceipt) {
+                txReceipt = await provider.getTransactionReceipt(tx.hash as string);
+              }
+              const logs = txReceipt.logs;
+              for (let log of logs) {
+                  const expectedTopic = '0xfe10586889e06530420fe4a0d86aa4f7afc3c9dc84b0c77b731a9615496ef18a';
+                  const expectedAddress = REACT_APP_ATTESTATION_REGISTRY_ADDRESS;
+                  if (log.address === expectedAddress && log.topics[0] === expectedTopic) {
+                    console.log("Attestation found!");
+                    attestationId = log.topics[1];
+                    walletHasValidAttestation = true;
+                  }
+              }
             } catch (e) {
               alert("Attestation failed");
               break;
@@ -44,6 +73,9 @@ function MainComponent(): JSX.Element {
       }
       
       attest().then(() => {
+        if (walletHasValidAttestation) {
+          alert(`The provided wallet has a valid attestation ID: ${attestationId}`);
+        }
         setRequestEnabled(walletHasValidAttestation);
       });
     }

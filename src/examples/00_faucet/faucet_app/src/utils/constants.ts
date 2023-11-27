@@ -1,0 +1,1 @@
+export const MACHINEHOOD_SCHEMA_ID = '0xfcd7908635f4a15e4c4ae351f13f9aa393e56e67aca82e5ffd3cf5c463464ee7';
