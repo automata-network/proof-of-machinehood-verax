@@ -25,16 +25,14 @@ function App() {
 function MainComponent(): JSX.Element {
   let [requestEnabled, setRequestEnabled] = useState(false);
   let [walletAddress, setWalletAddress] = useState("");
+  let [attestationId, setAttestationId] = useState("");
+
+  let fetchedAttestationId = "";
 
   useEffect(() => {
     if (walletAddress.length > 0) {
-      let walletHasValidAttestation = false;
-      let attestationId: BytesLike;
-
+      let walletHasValidAttestation = requestEnabled;
       const attest = async() => {
-        const attestation = (await getAttestationId(walletAddress));
-        walletHasValidAttestation = attestation.status;
-        attestationId = walletHasValidAttestation ? attestation.id : '';
         while (!walletHasValidAttestation) {
           let beginAttesting = window.confirm("You must provide an attestation for this wallet before proceeding.");
           if (beginAttesting) {
@@ -57,7 +55,8 @@ function MainComponent(): JSX.Element {
                   const expectedAddress = REACT_APP_ATTESTATION_REGISTRY_ADDRESS;
                   if (log.address === expectedAddress && log.topics[0] === expectedTopic) {
                     console.log("Attestation found!");
-                    attestationId = log.topics[1];
+                    fetchedAttestationId = log.topics[1];
+                    setAttestationId(fetchedAttestationId);
                     walletHasValidAttestation = true;
                   }
               }
@@ -74,7 +73,8 @@ function MainComponent(): JSX.Element {
       
       attest().then(() => {
         if (walletHasValidAttestation) {
-          alert(`The provided wallet has a valid attestation ID: ${attestationId}`);
+          const outputId = fetchedAttestationId.length > 0 ? fetchedAttestationId : attestationId;
+          alert(`The provided wallet has a valid attestation ID: ${outputId}`);
         }
         setRequestEnabled(walletHasValidAttestation);
       });
@@ -82,9 +82,15 @@ function MainComponent(): JSX.Element {
   }, [walletAddress]);
 
   function updateWalletAddress(newWalletAddress: string) {
-    console.log(newWalletAddress);
-    setRequestEnabled(false);
-    setWalletAddress(newWalletAddress);
+    if (walletAddress === newWalletAddress) {
+      alert("Am I a joke to you?");
+    } else {
+      getAttestationId(newWalletAddress).then((attestation) => {
+        setRequestEnabled(attestation.status);
+        setAttestationId(attestation.id as string);
+        setWalletAddress(newWalletAddress);
+      })
+    }
   }
 
   // TODO: Conditionally rendering either HomeComponent, AttestForm or FaucetForm component
@@ -115,7 +121,7 @@ function HomeComponent(prop: HomeProp): JSX.Element {
       <input 
         type = "text" 
         id = "wallet-address"
-        value = {walletAddress} 
+        value = {walletAddress}
         onChange = {(e) => {
           setWalletAddress(e.target.value)
         }}/>

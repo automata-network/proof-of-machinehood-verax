@@ -17,6 +17,9 @@ contract DeployFaucetScript is Script {
         vm.startBroadcast(privateKey);
         token = new MockERC20();
         faucet = new Faucet(attestationRegistry, machinehoodPortal, address(token));
+
+        // set 24 hours duration
+        faucet.setAttestationValidityDuration(3600 * 24);
         vm.stopBroadcast();
 
         console.log("[LOG] MockToken deployed at: ", address(token));

@@ -25,7 +25,7 @@ enum DeviceType {
     ANDROID,
     WINDOWS,
     YUBIKEY,
-    OTHER
+    SELFCLAIM
 }
 
 const enabledYubiKeyAAGUIDs = [
@@ -199,7 +199,7 @@ function getDeviceType(decodedAttestationObject: any, AAGUID: string): DeviceTyp
         }
     }
 
-    return DeviceType.OTHER;
+    return DeviceType.SELFCLAIM;
 }
 
 function parseAttStmt(device: DeviceType, decodedAttestationObj: any): string {

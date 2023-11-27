@@ -34,11 +34,11 @@ app.post('/', async (req, res) => {
     // request body params: {chainId: Number, from: address, to: address, value: Number, input: BytesLike}
     const body = req.body;
     if (body.method !== 'sendTx') {
-        res.sendStatus(400).send(
+        res.status(400).send(
             "400 Bad Request: Unknown method"
         )
     } else if (body.params.chainId !== currentChainId.toString()) {
-        res.sendStatus(400).send(
+        res.status(400).send(
             "400 Bad Request: Unsupported chainId"
         )
     } else {
@@ -48,23 +48,28 @@ app.post('/', async (req, res) => {
         const data = body.params.data;
         const user = body.params.from;
 
-        wallet.sendTransaction({
-            to: to,
-            value: value,
-            data: data
-        }).then((tx) => {
-            const response = {txHash: tx.hash};
-            res.sendStatus(200).send(JSON.stringify(response));
-            // handling machinehood-verax transactions
-            tx.wait(1).then((receipt) => {
-                if (to === machinehoodPortalAddress) {
-                    getAndStoreAttestationId(user, receipt);
-                }
+        let tx;
+
+        try {
+            tx = await wallet.sendTransaction({
+                to: to,
+                value: value,
+                data: data
             });
-        }).catch(e => {
-            // TODO: clarity on error response
+            const response = {txHash: tx.hash};
+            console.log(response);
+            res.status(200).send(JSON.stringify(response));
+        } catch (e) {
+            console.log(e);
+            // TODO: clarity on error message
             res.send(JSON.stringify(e));
-        });
+        }
+
+        // handling machinehood-verax transactions
+        if (tx && to === machinehoodPortalAddress) {
+            const receipt = await tx.wait(1);
+            await getAndStoreAttestationId(user, receipt);
+        }
     }
 })
 
@@ -93,7 +98,7 @@ app.get('/id', async (req, res) => {
         }
     }
 
-    res.send(JSON.stringify(response));
+    res.status(200).send(JSON.stringify(response));
 })
 
 app.listen(port, () => {
@@ -109,6 +114,7 @@ async function getAndStoreAttestationId(user, txReceipt) {
         const expectedAddress = attestationRegistryAddress;
         if (log.address === expectedAddress && log.topics[0] === expectedTopic) {
             const attestationId = log.topics[1];
+            console.log(`Saving attestation ID: ${attestationId}...`);
             cache.set(user.toLowerCase(), attestationId);
         }
     }
