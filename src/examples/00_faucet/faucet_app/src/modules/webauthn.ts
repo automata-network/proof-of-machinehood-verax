@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { Buffer } from 'buffer';
 import * as Parser from './parser/index';
 
-const REACT_APP_RPID = "localhost";
+const { REACT_APP_RPID } = process.env;
 
 interface ParsedCredential {
     AAGUID: string,

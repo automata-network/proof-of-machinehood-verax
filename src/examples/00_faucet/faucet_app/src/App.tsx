@@ -8,7 +8,7 @@ import {
 } from './modules/relayer';
 import './App.css';
 
-const REACT_APP_ATTESTATION_REGISTRY_ADDRESS = '0x3de3893aa4Cdea029e84e75223a152FD08315138';
+const { REACT_APP_ATTESTATION_REGISTRY_ADDRESS } = process.env;
 
 function App() {
   return (

@@ -16,11 +16,13 @@ import MachinehoodPortal from "../abi/MachinehoodPortal.json";
 import Faucet from "../abi/Faucet.json";
 import Token from '../abi/MockERC20.json';
 
-const REACT_APP_RPC_URL = 'http://localhost:8545/';
-const REACT_APP_RELAYER_URL = 'http://localhost:3001/';
-const REACT_APP_MACHINEHOOD_PORTAL_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
-const REACT_APP_FAUCET_ADDRESS = '0x9A676e781A523b5d0C0e43731313A708CB607508';
-const REACT_APP_TOKEN_ADDRESS = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82';
+const { 
+    REACT_APP_RPC_URL,
+    REACT_APP_RELAYER_URL,
+    REACT_APP_MACHINEHOOD_PORTAL_ADDRESS,
+    REACT_APP_FAUCET_ADDRESS,
+    REACT_APP_TOKEN_ADDRESS
+ } = process.env;
 
 export const provider = new JsonRpcProvider(REACT_APP_RPC_URL);
 
@@ -68,7 +70,7 @@ export async function submitAttestation(
         subject: walletAddress,
         attestationData: attestationData
     };
-    const portalContract = new Contract(REACT_APP_MACHINEHOOD_PORTAL_ADDRESS, MachinehoodPortal.abi, provider);
+    const portalContract = new Contract(REACT_APP_MACHINEHOOD_PORTAL_ADDRESS!, MachinehoodPortal.abi, provider);
     const txData = portalContract.interface.encodeFunctionData(
         'attest',
         [
@@ -76,7 +78,7 @@ export async function submitAttestation(
             [encodedValidationPayload]
         ]
     );
-    return buildTxRequest(walletAddress, REACT_APP_MACHINEHOOD_PORTAL_ADDRESS, txData);
+    return buildTxRequest(walletAddress, REACT_APP_MACHINEHOOD_PORTAL_ADDRESS!, txData);
 }
 
 export async function submitFaucetRequest(walletAddress: AddressLike): Promise<TransactionResponse> {
@@ -87,12 +89,12 @@ export async function submitFaucetRequest(walletAddress: AddressLike): Promise<T
             hash: ZeroHash
         }
     } else {
-        const faucetContract = new Contract(REACT_APP_FAUCET_ADDRESS, Faucet.abi, provider);
+        const faucetContract = new Contract(REACT_APP_FAUCET_ADDRESS!, Faucet.abi, provider);
         const txData = faucetContract.interface.encodeFunctionData(
             'requestTokens',
             [attestation.id]
         );
-        return buildTxRequest(walletAddress, REACT_APP_FAUCET_ADDRESS, txData);
+        return buildTxRequest(walletAddress, REACT_APP_FAUCET_ADDRESS!, txData);
     }
 }
 
@@ -108,7 +110,7 @@ export async function getAttestationId(walletAddress: AddressLike): Promise<Atte
 }
 
 export async function getTokenBalance(walletAddress: AddressLike): Promise<BigNumberish> {
-    const tokenContract = new Contract(REACT_APP_TOKEN_ADDRESS, Token.abi, provider);
+    const tokenContract = new Contract(REACT_APP_TOKEN_ADDRESS!, Token.abi, provider);
     return await tokenContract.balanceOf(walletAddress);
 }
 
@@ -139,7 +141,7 @@ async function buildTxRequest(
         body: JSON.stringify(reqBody)
     };
     console.log('request: ', reqOptions);
-    const responseStr = await fetch(REACT_APP_RELAYER_URL, reqOptions);
+    const responseStr = await fetch(REACT_APP_RELAYER_URL!, reqOptions);
     const response = await responseStr.json() as any;
     if (responseStr.status !== 200) {
         return {
