@@ -34,7 +34,7 @@ Schema Significance: The schema indicates that the owner of the `walletAddress` 
 The workflow on interacting with the demo:
 1. The user provides a wallet address that they intend to receive the tokens.
 2. The wallet address needs to be authenticated by the user's device.
-3. After getting confirmation of the attestation's validity, users may click on the Request Tokens button to receive 0.1 $MOCK to the wallet address provided on step 1.
+3. After getting confirmation of the attestation's validity, users may click on the Request Tokens button to receive 0.1 $MOCK to the wallet address provided on step 1. A confirmation window will appear prompting users to whether download a copy of their attestation data or not. This is optional, but can be useful for debugging.
 
 The demo consists of the following:
 - `Faucet.sol`: This is the Faucet contract that retrieves attestations from Verax Attestation Registry and sends tokens to the user's wallet.

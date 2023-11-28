@@ -80,22 +80,22 @@ export async function createCredential(challenge: string) {
     try {
         const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential;
         const parsedCredential = parseCredential(credential);
-
         const jsonDownload = processCredential(parsedCredential);
-        const jsonBlob = new Blob([JSON.stringify(jsonDownload)], { type: 'application/json' });
-        
-        // Create a download link
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(jsonBlob);
-        downloadLink.download = 'data.json';
-        // Trigger the download
-        downloadLink.click();
-
         return jsonDownload;
         
     } catch (err) {
         console.error(err);
     }
+}
+
+export function triggerJsonDownload(jsonDownload: ProcessedCredntial) {
+    const jsonBlob = new Blob([JSON.stringify(jsonDownload)], { type: 'application/json' });
+    // Create a download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(jsonBlob);
+    downloadLink.download = 'data.json';
+    // Trigger the download
+    downloadLink.click();
 }
 
 function checkPrefixThenPad(challenge: string): string {

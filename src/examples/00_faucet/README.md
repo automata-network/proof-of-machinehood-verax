@@ -26,19 +26,19 @@ Step 1: Deploy the `SigVerifyLib` and `DerParser` libraries.
 Step 2: Deploy [`machinehood-contracts`](https://github.com/automata-network/machinehood-contracts)
 
 ```bash
-./script/setup-pom.sh
+./scripts/setup-pom.sh
 ```
 
 Step 3: Deploy the Faucet and MockERC20 contracts
 
 ```bash
-./script/deploy-faucet.sh
+./scripts/deploy-faucet.sh
 ```
 
 Step 4: Configure `MachinehoodModule` to link with the Machinehood contracts
 
 ```bash
-./script/configure-module.sh
+./scripts/configure-module.sh
 ```
 
 The local fork is ready for the demo.

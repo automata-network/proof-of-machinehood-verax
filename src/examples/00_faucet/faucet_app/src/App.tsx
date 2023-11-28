@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { createCredential } from './modules/webauthn';
+import { AttestationComponent } from './components/Attestation';
+import { createCredential, triggerJsonDownload } from './modules/webauthn';
 import { 
   provider,
   getAttestationId, 
-  submitAttestation, 
-  submitFaucetRequest 
+  submitAttestation
 } from './modules/relayer';
 import './App.css';
 
@@ -25,8 +25,6 @@ function MainComponent(): JSX.Element {
   let [requestEnabled, setRequestEnabled] = useState(false);
   let [walletAddress, setWalletAddress] = useState("");
   let [attestationId, setAttestationId] = useState("");
-
-  let fetchedAttestationId = "";
 
   useEffect(() => {
     if (walletAddress.length > 0) {
@@ -54,9 +52,13 @@ function MainComponent(): JSX.Element {
                   const expectedAddress = REACT_APP_ATTESTATION_REGISTRY_ADDRESS;
                   if (log.address === expectedAddress && log.topics[0] === expectedTopic) {
                     console.log("Attestation found!");
-                    fetchedAttestationId = log.topics[1];
-                    setAttestationId(fetchedAttestationId);
+                    setAttestationId(log.topics[1]);
                     walletHasValidAttestation = true;
+                    let downloadJson = 
+                      window.confirm("Your device has been attested successfully. Would you like to download a copy of the attestation data?");
+                    if (downloadJson) {
+                      triggerJsonDownload(attestationParamObj!);
+                    }
                   }
               }
             } catch (e) {
@@ -72,10 +74,6 @@ function MainComponent(): JSX.Element {
       }
       
       attest().then(() => {
-        if (walletHasValidAttestation) {
-          const outputId = fetchedAttestationId.length > 0 ? fetchedAttestationId : attestationId;
-          alert(`The provided wallet has a valid attestation ID: ${outputId}`);
-        }
         setRequestEnabled(walletHasValidAttestation);
       });
     }
@@ -93,26 +91,15 @@ function MainComponent(): JSX.Element {
     }
   }
 
-  function handleRequestTokens() {
-    submitFaucetRequest(walletAddress).then((tx) => {
-      console.log(tx.hash);
-      alert("Tokens are coming your way! :)");
-    }).catch(e => {
-      console.log(e);
-      alert("Failed to request tokens");
-    })
-  }  
-
-  // TODO: Conditionally rendering either HomeComponent, AttestForm or FaucetForm component
-  // otherwise it looks ugly af
   return (
     <div>
       <HomeComponent updateWalletCallback={updateWalletAddress}/>
-      <button 
-        id = "request-btn" 
-        disabled = {!requestEnabled} 
-        onClick={handleRequestTokens}
-      > Request Tokens </button>
+      { requestEnabled &&
+        <AttestationComponent 
+          walletAddress={walletAddress}
+          attestationId={attestationId}
+        />
+      }
     </div>
   )
 }
