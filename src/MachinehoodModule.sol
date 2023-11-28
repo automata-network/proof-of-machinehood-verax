@@ -14,8 +14,9 @@ struct ValidationPayloadStruct {
 enum DeviceType {
     INVALID,
     ANDROID,
-    TPM,
-    YUBIKEY
+    WINDOWS,
+    YUBIKEY,
+    SELFCLAIM
 }
 
 contract MachinehoodModule is AbstractModule, Ownable {
@@ -59,14 +60,19 @@ contract MachinehoodModule is AbstractModule, Ownable {
         ValidationPayloadStruct memory decoded = abi.decode(validationPayload, (ValidationPayloadStruct));
 
         address verify = verifyingAddresses[deviceType];
-        if (verify == address(0)) {
+
+        // TEMP: bypass Apple lib
+
+        if (verify == address(0) && deviceType != DeviceType.SELFCLAIM) {
             revert Unsupported_Device_Type();
         }
 
-        (bool success, string memory reason) = AttestationVerificationBase(verify).verifyAttStmt(
-            abi.encodePacked(walletAddress), decoded.attStmt, decoded.authData, decoded.clientData
-        );
+        if (deviceType != DeviceType.SELFCLAIM) {
+            (bool success, string memory reason) = AttestationVerificationBase(verify).verifyAttStmt(
+                abi.encodePacked(walletAddress), decoded.attStmt, decoded.authData, decoded.clientData
+            );
 
-        require(success, reason);
+            require(success, reason);
+        }
     }
 }
