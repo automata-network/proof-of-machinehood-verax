@@ -62,7 +62,7 @@ You may skip directly to the **Contract Deployment** section if you intend to de
 Step 2: Source the envrionment.
 
 ```bash
-source .emv
+source .env
 ```
 
 Step 3: Instantiate a local fork of the Linea mainnet.
