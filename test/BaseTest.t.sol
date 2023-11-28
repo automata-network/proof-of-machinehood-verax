@@ -7,8 +7,8 @@ import {PortalRegistry} from "verax-contracts/PortalRegistry.sol";
 import {ModuleRegistry} from "verax-contracts/ModuleRegistry.sol";
 import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
 
-import {SigVerifyLib} from "@automata-network/machinehood-contracts/utils/SigVerifyLib.sol";
-import {DerParser} from "@automata-network/machinehood-contracts/utils/DerParser.sol";
+import {SigVerifyLib} from "@automata-network/proof-of-machinehood-contracts/utils/SigVerifyLib.sol";
+import {DerParser} from "@automata-network/proof-of-machinehood-contracts/utils/DerParser.sol";
 
 import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
 import {
@@ -47,7 +47,7 @@ abstract contract BaseTest is Test {
 
         // registers the schema
         schemaRegistry.createSchema(
-            "Machinehood Attestation",
+            "Proof of Machinehood Attestation",
             "https://docs.ata.network/automata-2.0/proof-of-machinehood",
             "",
             "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"

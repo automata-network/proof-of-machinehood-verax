@@ -24,7 +24,7 @@ contract VeraxConfigurationScript is Script {
         vm.startBroadcast(deployerKey);
         // registers the schema
         schemaRegistry.createSchema(
-            "Machinehood Attestation",
+            "Proof of Machinehood Attestation",
             "https://docs.ata.network/automata-2.0/proof-of-machinehood",
             "",
             "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"

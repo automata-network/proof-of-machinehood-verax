@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {AndroidSafetyNet} from "@automata-network/machinehood-contracts/AndroidSafetyNet.sol";
+import {AndroidSafetyNet} from "@automata-network/proof-of-machinehood-contracts/AndroidSafetyNet.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
 
 import "../BaseTest.t.sol";

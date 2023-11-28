@@ -23,7 +23,7 @@ Step 1: Deploy the `SigVerifyLib` and `DerParser` libraries.
 ./scripts/setup-lib.sh
 ```
 
-Step 2: Deploy [`machinehood-contracts`](https://github.com/automata-network/machinehood-contracts)
+Step 2: Deploy [`proof-of-machinehood-contracts`](https://github.com/automata-network/proof-of-machinehood-contracts)
 
 ```bash
 ./scripts/setup-pom.sh
@@ -35,7 +35,7 @@ Step 3: Deploy the Faucet and MockERC20 contracts
 ./scripts/deploy-faucet.sh
 ```
 
-Step 4: Configure `MachinehoodModule` to link with the Machinehood contracts
+Step 4: Configure `MachinehoodModule` to link with the POM contracts
 
 ```bash
 ./scripts/configure-module.sh

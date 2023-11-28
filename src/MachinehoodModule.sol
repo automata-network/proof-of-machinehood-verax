@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {AbstractModule, AttestationPayload} from "verax-contracts/abstracts/AbstractModule.sol";
-import {AttestationVerificationBase} from "@automata-network/machinehood-contracts/AttestationVerificationBase.sol";
+import {AttestationVerificationBase} from "@automata-network/proof-of-machinehood-contracts/AttestationVerificationBase.sol";
 import {Ownable} from "solady/Milady.sol";
 
 struct ValidationPayloadStruct {

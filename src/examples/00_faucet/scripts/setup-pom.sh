@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root="../../.."
-path="$root/lib/machinehood-contracts"
+path="$root/lib/proof-of-machinehood-contracts"
 pom_path="$path/script/script.sh"
 
 source $root/.env
