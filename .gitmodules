@@ -4,6 +4,6 @@
 [submodule "lib/linea-attestation-registry"]
 	path = lib/linea-attestation-registry
 	url = https://github.com/consensys/linea-attestation-registry
-[submodule "lib/solady"]
-	path = lib/solady
-	url = https://github.com/vectorized/solady
+[submodule "lib/proof-of-machinehood-contracts"]
+	path = lib/proof-of-machinehood-contracts
+	url = https://github.com/automata-network/proof-of-machinehood-contracts

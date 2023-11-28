@@ -1,2 +1,5 @@
 verax-contracts/=lib/linea-attestation-registry/contracts/src/
-solady/=lib/solady/src/
+@automata-network/proof-of-machinehood-contracts/=lib/proof-of-machinehood-contracts/src/
+solady/=lib/proof-of-machinehood-contracts/lib/solady/src/
+p256-verifier/=lib/proof-of-machinehood-contracts/lib/p256-verifier/src/
+@openzeppelin/contracts/=lib/linea-attestation-registry/contracts/lib/openzeppelin-contracts/contracts/

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {AndroidSafetyNet} from "@automata-network/proof-of-machinehood-contracts/AndroidSafetyNet.sol";
+
 import "./BaseTest.t.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
-import {AndroidSafetyNet} from "../src/lib/verification/AndroidSafetyNet.sol";
 import {AndroidSafetyNetConstants} from "./constants/AndroidSafetyNetConstants.t.sol";
 
 contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
@@ -14,12 +15,16 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
     function setUp() public override {
         super.setUp();
 
+        // Bypass Expired Certificate reverts
+        // October 10th, 2023, 4am GMT
+        vm.warp(1696910400);
+
         vm.startPrank(admin);
 
-        attestationContract = AndroidSafetyNet(vm.envAddress("ANDROID_SAFETY_NET"));
+        attestationContract = new AndroidSafetyNet(address(sigVerify), address(derParser));
         attestationContract.addCACert(certHash);
 
-        module.configureSupportedDevice(MachinehoodModule.DeviceType.ANDROID, address(attestationContract));
+        module.configureSupportedDevice(DeviceType.ANDROID, address(attestationContract));
 
         vm.stopPrank();
     }
@@ -27,11 +32,8 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
     function testAttest() public {
         bytes32 walletAddress = bytes32(uint256(uint160(user)));
 
-        MachinehoodModule.ValidationPayloadStruct memory validationPayload = MachinehoodModule.ValidationPayloadStruct({
-            attStmt: encodedAttStmt,
-            authData: authData,
-            clientData: clientDataJSON
-        });
+        ValidationPayloadStruct memory validationPayload =
+            ValidationPayloadStruct({attStmt: encodedAttStmt, authData: authData, clientData: clientDataJSON});
 
         bytes memory encodedValidationData = abi.encode(validationPayload);
 
@@ -50,16 +52,7 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
         uint32 counter = attestationRegistry.getAttestationIdCounter();
         bytes32 id = bytes32(abi.encode(++counter));
 
-        bytes memory data = abi.encodeWithSelector(
-            portal.attest.selector,
-            attestationPayload,
-            validationPayloadArr
-        );
-
-        console.logBytes(data);
-
-        // portal.attest(attestationPayload, validationPayloadArr);
-
-        // assertTrue(attestationRegistry.isRegistered(id));
+        portal.attest(attestationPayload, validationPayloadArr);
+        assertTrue(attestationRegistry.isRegistered(id));
     }
 }

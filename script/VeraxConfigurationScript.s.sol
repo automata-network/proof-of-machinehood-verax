@@ -6,7 +6,7 @@ import {SchemaRegistry} from "verax-contracts/SchemaRegistry.sol";
 import {PortalRegistry} from "verax-contracts/PortalRegistry.sol";
 import {ModuleRegistry} from "verax-contracts/ModuleRegistry.sol";
 import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
-import {AutomataPortal} from "../src/AutomataPortal.sol";
+import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
 import {MachinehoodModule} from "../src/MachinehoodModule.sol";
 
 contract VeraxConfigurationScript is Script {
@@ -16,22 +16,24 @@ contract VeraxConfigurationScript is Script {
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
     MachinehoodModule internal module = MachinehoodModule(vm.envAddress("MACHINEHOOD_MODULE_ADDRESS"));
-    AutomataPortal internal portal = AutomataPortal(vm.envAddress("AUTOMATA_PORTAL_ADDRESS"));
+    MachinehoodPortal internal portal = MachinehoodPortal(vm.envAddress("MACHINEHOOD_PORTAL_ADDRESS"));
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(deployerKey);
 
+        vm.startBroadcast(deployerKey);
         // registers the schema
         schemaRegistry.createSchema(
-            "Machinehood Attestation",
+            "Proof of Machinehood Attestation",
             "https://docs.ata.network/automata-2.0/proof-of-machinehood",
             "",
             "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
         );
 
         // registers module
-        moduleRegistry.register("MachinehoodModule", "https://docs.ata.network/automata-2.0/proof-of-machinehood", address(module));
+        moduleRegistry.register(
+            "MachinehoodModule", "https://docs.ata.network/automata-2.0/proof-of-machinehood", address(module)
+        );
 
         // registers portal
         portalRegistry.register(
@@ -41,7 +43,6 @@ contract VeraxConfigurationScript is Script {
             false, // not-revocable
             "test-owner"
         );
-
         vm.stopBroadcast();
     }
 }
