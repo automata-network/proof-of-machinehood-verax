@@ -7,8 +7,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Faucet is Ownable {
     uint256 public attestationValidityDurationInSeconds;
-    /// @dev this is necessary because we want attestations with the machinehood schema to be created
-    /// from the official portal only
+    /// @dev this is necessary because we only accept machinehood attestation submitted
+    /// from the official portal
     address public immutable machinehoodPortal;
     AttestationRegistry public immutable attestationRegistry;
     MockERC20 public immutable token;
