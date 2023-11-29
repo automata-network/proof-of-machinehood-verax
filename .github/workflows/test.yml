@@ -15,6 +15,7 @@ env:
   SCHEMA_REGISTRY_ADDRESS: "0x0f95dCec4c7a93F2637eb13b655F2223ea036B59"
   MODULE_REGISTRY_ADDRESS: "0xf851513A732996F22542226341748f3C9978438f"
   ATTESTATION_REGISTRY_ADDRESS: "0x3de3893aa4Cdea029e84e75223a152FD0831513"
+  ROUTER_ADDRESS: "0x4d3a380A03f3a18A5dC44b01119839D8674a552E"
 
 jobs:
   check:
@@ -27,24 +28,19 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      
-      - name: Debug .env
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Forge build
         run: |
-          echo $FOUNDRY_PROFILE
-          echo $FORK_URL
+          forge --version
+          forge build --sizes
+        id: build
 
-      # - name: Install Foundry
-      #   uses: foundry-rs/foundry-toolchain@v1
-      #   with:
-      #     version: nightly
-
-      # - name: Run Forge build
-      #   run: |
-      #     forge --version
-      #     forge build --sizes
-      #   id: build
-
-      # - name: Run Forge tests
-      #   run: |
-      #     forge test -vvv
-      #   id: test
+      - name: Run Forge tests
+        run: |
+          forge test -vvvvv
+        id: test
