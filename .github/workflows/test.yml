@@ -10,6 +10,12 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
+  FORK_URL: "https://1rpc.io/linea"
+  PORTAL_REGISTRY_ADDRESS: "0xd5d61e4ECDf6d46A63BfdC262af92544DFc19083"
+  SCHEMA_REGISTRY_ADDRESS: "0x0f95dCec4c7a93F2637eb13b655F2223ea036B59"
+  MODULE_REGISTRY_ADDRESS: "0xf851513A732996F22542226341748f3C9978438f"
+  ATTESTATION_REGISTRY_ADDRESS: "0x3de3893aa4Cdea029e84e75223a152FD08315138"
+  ROUTER_ADDRESS: "0x4d3a380A03f3a18A5dC44b01119839D8674a552E"
 
 jobs:
   check:
@@ -36,5 +42,5 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test -vvv
+          forge test -vvvvv
         id: test
