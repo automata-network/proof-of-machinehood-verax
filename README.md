@@ -1,4 +1,7 @@
 # Integrating Proof of Machinehood (POM) with Verax Attestation Registry
+
+[![License](https://img.shields.io/badge/license-GPL3.0-green.svg)](LICENSE)
+
 This repository provides the implementation for POM attestations on Verax by integrating [POM Contracts](https://github.com/automata-network/proof-of-machinehood-contracts) and [Verax Attestation Registry](https://github.com/Consensys/linea-attestation-registry). For more information about POM, please refer to the provided [documentation]((https://docs.ata.network/automata-2.0/proof-of-machinehood)) and explore the [POM contracts repository](https://github.com/automata-network/proof-of-machinehood-contracts).
 
 ## Repository Overview
