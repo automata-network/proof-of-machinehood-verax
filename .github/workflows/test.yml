@@ -27,19 +27,24 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
-
-      - name: Run Forge build
+      
+      - name: Debug .env
         run: |
-          forge --version
-          forge build --sizes
-        id: build
+          echo $FOUNDRY_PROFILE
+          echo $FORK_URL
 
-      - name: Run Forge tests
-        run: |
-          forge test -vvv
-        id: test
+      # - name: Install Foundry
+      #   uses: foundry-rs/foundry-toolchain@v1
+      #   with:
+      #     version: nightly
+
+      # - name: Run Forge build
+      #   run: |
+      #     forge --version
+      #     forge build --sizes
+      #   id: build
+
+      # - name: Run Forge tests
+      #   run: |
+      #     forge test -vvv
+      #   id: test
