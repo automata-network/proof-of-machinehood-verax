@@ -5,6 +5,7 @@ import {AndroidSafetyNet} from "@automata-network/proof-of-machinehood-contracts
 
 import "./BaseTest.t.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
+import {MachinehoodModule} from "../src/MachinehoodModule.sol";
 import {AndroidSafetyNetConstants} from "./constants/AndroidSafetyNetConstants.t.sol";
 
 contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
@@ -54,5 +55,9 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
 
         portal.attest(attestationPayload, validationPayloadArr);
         assertTrue(attestationRegistry.isRegistered(id));
+
+        // replay attempt
+        vm.expectRevert(MachinehoodModule.Duplicate_Proof_Hash_Found.selector);
+        portal.attest(attestationPayload, validationPayloadArr);
     }
 }
