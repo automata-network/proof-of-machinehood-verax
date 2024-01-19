@@ -29,6 +29,34 @@ The schema comprises three fields:
 
 Schema Significance: The schema indicates that the owner of the `walletAddress` is attesting to owning a device of `deviceType` and provides a proof whose hash is `proofHash`.
 
+## Contract Addresses
+
+Both `MachinehoodModule.sol` and `MachinehoodPortal.sol` are deployed on various networks, with the addresses stated below.
+
+<details>
+    <summary> Linea Testnet </summary>
+    
+    MachinehoodModule = 0x1e4CdFcEd55e1C2B3c0d4093ADB0293712a00a33
+
+    MachinehoodPortal = 0x3157398aBAeC4A02aE00Ffa06FfF3A8539150a0F
+</details>
+
+<details>
+    <summary> Linea Mainnet </summary>
+
+    MachinehoodModule = 0x92e97482B7e09C9b7B0AF89B41CDD9Aaf3A7D75a
+
+    MachinehoodPortal = 0xAf7452841e9A0851bEaD2d2B33f3494571A40D4C
+</details>
+
+<details>
+    <summary> Arbitrum One </summary>
+
+    MachinehoodModule = 0x92e97482B7e09C9b7B0AF89B41CDD9Aaf3A7D75a
+
+    MachinehoodPortal = 0xAf7452841e9A0851bEaD2d2B33f3494571A40D4C
+</details>
+
 ## What are included in this repo?
 - `MachinehoodPortal.sol`: This is the entrypoint contract where users can submit POM attestations using their device built-in authenticator.
 - `MachinehoodModule.sol`: The module contract that implements on-chain validation logic.
