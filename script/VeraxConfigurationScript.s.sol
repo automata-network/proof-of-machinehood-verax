@@ -32,16 +32,18 @@ contract VeraxConfigurationScript is Script {
 
         // registers module
         moduleRegistry.register(
-            "MachinehoodModule", "https://docs.ata.network/automata-2.0/proof-of-machinehood", address(module)
+            "Automata PoM Module", 
+            "https://docs.ata.network/automata-2.0/proof-of-machinehood", 
+            address(module)
         );
 
         // registers portal
         portalRegistry.register(
             address(portal),
-            "MachinehoodPortal (Test)",
-            "This is a test portal for Machinehood Attestation",
+            "Automata PoM Portal",
+            "https://docs.ata.network/automata-2.0/proof-of-machinehood",
             false, // not-revocable
-            "test-owner"
+            "Automata Network"
         );
         vm.stopBroadcast();
     }
