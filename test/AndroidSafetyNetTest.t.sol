@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {AndroidSafetyNet} from "@automata-network/proof-of-machinehood-contracts/AndroidSafetyNet.sol";
+import {AndroidSafetyNet} from "@automata-network/proof-of-machinehood-contracts/webauthn/AndroidSafetyNet.sol";
 
 import "./BaseTest.t.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
-import {MachinehoodModule} from "../src/MachinehoodModule.sol";
 import {AndroidSafetyNetConstants} from "./constants/AndroidSafetyNetConstants.t.sol";
 
 contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
@@ -25,7 +24,7 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
         attestationContract = new AndroidSafetyNet(address(sigVerify), address(derParser));
         attestationContract.addCACert(certHash);
 
-        module.configureSupportedDevice(DeviceType.ANDROID, address(attestationContract));
+        portal.configureWebAuthNLib(WebAuthNAttestPlatform.ANDROID, address(attestationContract));
 
         vm.stopPrank();
     }
@@ -33,31 +32,23 @@ contract AndroidSafetyNetTest is BaseTest, AndroidSafetyNetConstants {
     function testAttest() public {
         bytes32 walletAddress = bytes32(uint256(uint160(user)));
 
-        ValidationPayloadStruct memory validationPayload =
-            ValidationPayloadStruct({attStmt: encodedAttStmt, authData: authData, clientData: clientDataJSON});
-
-        bytes memory encodedValidationData = abi.encode(validationPayload);
-
-        bytes memory attestationData = abi.encode(walletAddress, uint8(1), keccak256(encodedValidationData));
-
-        bytes[] memory validationPayloadArr = new bytes[](1);
-        validationPayloadArr[0] = encodedValidationData;
-
-        AttestationPayload memory attestationPayload = AttestationPayload({
-            schemaId: module.MACHINEHOOD_SCHEMA_ID(),
-            expirationDate: 0,
-            subject: bytes("test-subject"),
-            attestationData: attestationData
-        });
-
-        uint32 counter = attestationRegistry.getAttestationIdCounter();
-        bytes32 id = bytes32(abi.encode(++counter));
-
-        portal.attest(attestationPayload, validationPayloadArr);
-        assertTrue(attestationRegistry.isRegistered(id));
+        bytes32 attestationId = portal.webAuthNAttest(
+            WebAuthNAttestPlatform.ANDROID,
+            walletAddress,
+            encodedAttStmt,
+            authData,
+            clientDataJSON
+        );
+        assertTrue(attestationRegistry.isRegistered(attestationId));
 
         // replay attempt
-        vm.expectRevert(MachinehoodModule.Duplicate_Proof_Hash_Found.selector);
-        portal.attest(attestationPayload, validationPayloadArr);
+        vm.expectRevert(MachinehoodEntrypointPortal.Attestation_Already_Exists.selector);
+        portal.webAuthNAttest(
+            WebAuthNAttestPlatform.ANDROID,
+            walletAddress,
+            encodedAttStmt,
+            authData,
+            clientDataJSON
+        );
     }
 }

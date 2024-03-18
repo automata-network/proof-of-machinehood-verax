@@ -10,15 +10,12 @@ import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
 import {SigVerifyLib} from "@automata-network/proof-of-machinehood-contracts/utils/SigVerifyLib.sol";
 import {DerParser} from "@automata-network/proof-of-machinehood-contracts/utils/DerParser.sol";
 
-import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
-import {
-    MachinehoodModule, ValidationPayloadStruct, AttestationPayload, DeviceType
-} from "../src/MachinehoodModule.sol";
+import "../src/MachinehoodEntrypointPortal.sol";
 
 abstract contract BaseTest is Test {
     address internal constant registryOwner = 0x39241A22eA7162C206409aAA2E4a56f9a79c15AB;
     address internal constant admin = 0x95d06B395F04dc1bBD0CE9fcC501D7044ea25DAd;
-    string internal forkUrl = vm.envString("FORK_URL");
+    string internal forkUrl = vm.envString("RPC_URL");
     address internal router = vm.envAddress("ROUTER_ADDRESS");
     PortalRegistry internal portalRegistry = PortalRegistry(vm.envAddress("PORTAL_REGISTRY_ADDRESS"));
     SchemaRegistry internal schemaRegistry = SchemaRegistry(vm.envAddress("SCHEMA_REGISTRY_ADDRESS"));
@@ -29,8 +26,7 @@ abstract contract BaseTest is Test {
     SigVerifyLib sigVerify;
     DerParser derParser;
 
-    MachinehoodModule internal module;
-    MachinehoodPortal internal portal;
+    MachinehoodEntrypointPortal internal portal;
 
     function setUp() public virtual {
         uint256 fork = vm.createFork(forkUrl);
@@ -45,29 +41,24 @@ abstract contract BaseTest is Test {
 
         vm.startPrank(admin);
 
-        // registers the schema
-        schemaRegistry.createSchema(
-            "Proof of Machinehood Attestation",
-            "https://docs.ata.network/automata-2.0/proof-of-machinehood",
-            "",
-            "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
-        );
-
-        // deploys the module
-        module = new MachinehoodModule();
-
-        // registers module
-        moduleRegistry.register("MachinehoodModule", "module-description", address(module));
+        // // registers the schema
+        // commented out because this has been done on mainnet
+        // uncomment this if the tests are running on a different fork
+        // schemaRegistry.createSchema(
+        //     "Proof of Machinehood Attestation",
+        //     "https://docs.ata.network/automata-2.0/proof-of-machinehood",
+        //     "",
+        //     "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
+        // );
 
         // deploys portal
-        address[] memory modules = new address[](1);
-        modules[0] = address(module);
+        address[] memory modules = new address[](0);
 
-        portal = new MachinehoodPortal(modules, router);
+        portal = new MachinehoodEntrypointPortal(modules, router);
 
         portalRegistry.register(
             address(portal),
-            "MachinehoodPortal",
+            "MachinehoodEntrypointPortal",
             "portal-description",
             false, // not-revocable
             "portal-owner-name"
@@ -78,8 +69,7 @@ abstract contract BaseTest is Test {
 
     function testSetup() public {
         assertTrue(portalRegistry.isIssuer(admin));
-        assertTrue(schemaRegistry.isRegistered(module.MACHINEHOOD_SCHEMA_ID()));
-        assertTrue(moduleRegistry.isRegistered(address(module)));
+        assertTrue(schemaRegistry.isRegistered(portal.webAuthNAttestationSchemaId()));
         assertTrue(portalRegistry.isRegistered(address(portal)));
     }
 }

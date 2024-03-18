@@ -6,8 +6,7 @@ import {SchemaRegistry} from "verax-contracts/SchemaRegistry.sol";
 import {PortalRegistry} from "verax-contracts/PortalRegistry.sol";
 import {ModuleRegistry} from "verax-contracts/ModuleRegistry.sol";
 import {AttestationRegistry} from "verax-contracts/AttestationRegistry.sol";
-import {MachinehoodPortal} from "../src/MachinehoodPortal.sol";
-import {MachinehoodModule} from "../src/MachinehoodModule.sol";
+import {MachinehoodEntrypointPortal} from "../src/MachinehoodEntrypointPortal.sol";
 
 contract VeraxConfigurationScript is Script {
     PortalRegistry internal portalRegistry = PortalRegistry(vm.envAddress("PORTAL_REGISTRY_ADDRESS"));
@@ -15,14 +14,15 @@ contract VeraxConfigurationScript is Script {
     ModuleRegistry internal moduleRegistry = ModuleRegistry(vm.envAddress("MODULE_REGISTRY_ADDRESS"));
     AttestationRegistry internal attestationRegistry =
         AttestationRegistry(vm.envAddress("ATTESTATION_REGISTRY_ADDRESS"));
-    MachinehoodModule internal module = MachinehoodModule(vm.envAddress("MACHINEHOOD_MODULE_ADDRESS"));
-    MachinehoodPortal internal portal = MachinehoodPortal(vm.envAddress("MACHINEHOOD_PORTAL_ADDRESS"));
+    MachinehoodEntrypointPortal internal portal =
+        MachinehoodEntrypointPortal(vm.envAddress("MACHINEHOOD_PORTAL_ADDRESS"));
 
     function run() public {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
 
         vm.startBroadcast(deployerKey);
-        // registers the schema
+
+        // registers WebAuthN schema
         schemaRegistry.createSchema(
             "Proof of Machinehood Attestation",
             "https://docs.ata.network/automata-2.0/proof-of-machinehood",
@@ -30,11 +30,12 @@ contract VeraxConfigurationScript is Script {
             "bytes32 walletAddress, uint8 deviceType, bytes32 proofHash"
         );
 
-        // registers module
-        moduleRegistry.register(
-            "Automata PoM Module", 
-            "https://docs.ata.network/automata-2.0/proof-of-machinehood", 
-            address(module)
+        // registers NativeAttestation Schema
+        schemaRegistry.createSchema(
+            "Proof of Machinehood Native Attestation",
+            "https://docs.ata.network/automata-2.0/proof-of-machinehood",
+            "",
+            "uint8 platform, bytes deviceIdentity, bytes attData"
         );
 
         // registers portal
