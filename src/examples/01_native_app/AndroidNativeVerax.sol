@@ -15,6 +15,8 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
     }
 
     AttestationConfiguration public config;
+
+    mapping (uint256 => bool) _serialNumRevoked;
     
     constructor(address _sigVerifyLib) AndroidNative(_sigVerifyLib) {
         _initializeOwner(msg.sender);
@@ -22,6 +24,22 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
 
     function setConfig(AttestationConfiguration memory newConfig) external onlyOwner {
         config = newConfig;
+    }
+
+    function revokeCertBatch(uint256[] serialNums) external onlyOwner {
+        for (uint256 i = 0; i < serialNums.length; i++) {
+            if (!_serialNumRevoked[serialNums[i]]) {
+                _revokeCert(serialNums[i], true);
+            }
+        }
+    }
+
+    function setSingleCertRevocationStatus(uint256 serialNum, bool revoked) external onlyOwner {
+        _revokeCert(serialNum, revoked);
+    }
+
+    function certIsRevoked(uint256 serialNum) public view override returns (bool) {
+        return _serialNumRevoked[serialNum];
     }
 
     function _validateAttestation(BasicAttestationObject memory att) internal view override returns (bool) {
@@ -34,4 +52,7 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
         );
     }
 
+    function _revokeCert(uint256 serialNum, bool revoked) private {
+        _serialNumRevoked[serialNum] = revoked;
+    }
 }
