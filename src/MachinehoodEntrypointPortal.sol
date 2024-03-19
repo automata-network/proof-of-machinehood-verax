@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {AbstractPortal} from "verax-contracts/abstracts/AbstractPortal.sol";
+import {AbstractPortal, AttestationRegistry} from "verax-contracts/abstracts/AbstractPortal.sol";
 import {AttestationPayload, Attestation} from "verax-contracts/types/Structs.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
 import {LibBitmap} from "solady/utils/LibBitmap.sol";
@@ -10,7 +10,8 @@ import {
     NativeAttestPlatform,
     WebAuthNAttestPlatform,
     WebAuthNAttestationSchema,
-    NativeAttestationSchema
+    NativeAttestationSchema,
+    AttestationStatus
 } from "@automata-network/proof-of-machinehood-contracts/POMEntrypoint.sol";
 
 contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
@@ -19,7 +20,7 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
     /// @dev bitmap is used to keep track of attestation data collision
     /// this prevents attackers from re-submitting attested data
     LibBitmap.Bitmap internal proofBitmap;
-    
+
     mapping(WebAuthNAttestPlatform => address) public webAuthNVerifiers;
     mapping(NativeAttestPlatform => address) public nativeVerifiers;
     mapping(bytes32 => bytes32) nativeDeviceAttestations;
@@ -69,7 +70,7 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
         NATIVE_MACHINEHOOD_SCHEMA_ID = 0xb11541e7280d96b00370411a2ac95535280290a801f9de711a29a7abe16a68e0;
     }
 
-    function getAttestationFromDeviceIdentity(NativeAttestPlatform platform, bytes calldata deviceIdentity)
+    function getNativeAttestationFromDeviceIdentity(NativeAttestPlatform platform, bytes calldata deviceIdentity)
         public
         view
         override
@@ -77,6 +78,26 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
     {
         bytes32 index = keccak256(abi.encodePacked(uint8(platform), deviceIdentity));
         attestationId = nativeDeviceAttestations[index];
+    }
+
+    function getNativeAttestationStatus(NativeAttestPlatform platform, bytes calldata deviceIdentity)
+        public
+        view
+        override
+        returns (AttestationStatus status)
+    {
+        bytes32 index = keccak256(abi.encodePacked(uint8(platform), deviceIdentity));
+        bytes32 attestationId = nativeDeviceAttestations[index];
+        if (attestationId != bytes32(0)) {
+            Attestation memory attestation = attestationRegistry.getAttestation(attestationId);
+            if (attestation.revoked) {
+                status = AttestationStatus.REVOKED;
+            } else if (block.timestamp > attestation.expirationDate) {
+                status = AttestationStatus.EXPIRED;
+            } else {
+                status = AttestationStatus.REGISTERED;
+            }
+        }
     }
 
     function _platformMapToWebAuthNverifier(WebAuthNAttestPlatform platform)
@@ -110,7 +131,7 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
 
         // replay protection
         proofBitmap.set(key);
-        
+
         bytes[] memory empty = new bytes[](0);
 
         AttestationPayload memory attestationPayload = AttestationPayload(
@@ -124,14 +145,19 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
         super.attest(attestationPayload, empty);
     }
 
-    function _attestNative(NativeAttestationSchema memory att) internal override lock returns (bytes32 attestationId) {
+    function _attestNative(NativeAttestationSchema memory att, uint256 expiry)
+        internal
+        override
+        lock
+        returns (bytes32 attestationId)
+    {
         bytes32 index = keccak256(abi.encodePacked(att.platform, att.deviceIdentity));
 
         bytes[] memory empty = new bytes[](0);
 
         AttestationPayload memory attestationPayload = AttestationPayload(
             nativeAttestationSchemaId(),
-            0, // does it expire?
+            uint64(expiry),
             abi.encode(att.platform, att.deviceIdentity), // assign the device identity as the subject of this attestation
             att.attData
         );

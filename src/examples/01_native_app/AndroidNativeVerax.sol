@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {AndroidNative, BasicAttestationObject, SecurityLevel} from "@automata-network/proof-of-machinehood-contracts/native/AndroidNative.sol";
+import {
+    AndroidNative,
+    BasicAttestationObject,
+    SecurityLevel
+} from "@automata-network/proof-of-machinehood-contracts/native/AndroidNative.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
 
 contract AndroidNativeVerax is AndroidNative, Ownable {
-    
     struct AttestationConfiguration {
         uint256 attestationVersion;
         SecurityLevel securityLevel;
@@ -16,8 +19,8 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
 
     AttestationConfiguration public config;
 
-    mapping (uint256 => bool) _serialNumRevoked;
-    
+    mapping(uint256 => bool) _serialNumRevoked;
+
     constructor(address _sigVerifyLib) AndroidNative(_sigVerifyLib) {
         _initializeOwner(msg.sender);
     }
@@ -44,11 +47,10 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
 
     function _validateAttestation(BasicAttestationObject memory att) internal view override returns (bool) {
         return (
-            att.attestationVersion == config.attestationVersion &&
-            uint8(att.securityLevel) == uint8(config.securityLevel) &&
-            att.packageVersion == config.packageVersion &&
-            keccak256(bytes(att.packageName)) == keccak256(bytes(config.packageName)) &&
-            keccak256(att.packageSignature) == keccak256(config.packageSignature)
+            att.attestationVersion == config.attestationVersion
+                && uint8(att.securityLevel) == uint8(config.securityLevel) && att.packageVersion == config.packageVersion
+                && keccak256(bytes(att.packageName)) == keccak256(bytes(config.packageName))
+                && keccak256(att.packageSignature) == keccak256(config.packageSignature)
         );
     }
 
