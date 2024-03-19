@@ -25,11 +25,11 @@ contract AndroidNativeVerax is AndroidNative, Ownable {
         _initializeOwner(msg.sender);
     }
 
-    function setConfig(AttestationConfiguration memory newConfig) external onlyOwner {
+    function setConfig(AttestationConfiguration calldata newConfig) external onlyOwner {
         config = newConfig;
     }
 
-    function revokeCertBatch(uint256[] serialNums) external onlyOwner {
+    function revokeCertBatch(uint256[] calldata serialNums) external onlyOwner {
         for (uint256 i = 0; i < serialNums.length; i++) {
             if (!_serialNumRevoked[serialNums[i]]) {
                 _revokeCert(serialNums[i], true);
