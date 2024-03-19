@@ -14,8 +14,12 @@ import {
     AttestationStatus
 } from "@automata-network/proof-of-machinehood-contracts/POMEntrypoint.sol";
 
+import {IRevokeMachinehoodAttestationCallee} from "./interfaces/IRevokeMachineAttestationCallee.sol";
+
 contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
     using LibBitmap for LibBitmap.Bitmap;
+
+    IRevokeMachinehoodAttestationCallee public revokeCallee;
 
     /// @dev bitmap is used to keep track of attestation data collision
     /// this prevents attackers from re-submitting attested data
@@ -30,6 +34,7 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
     /// @notice Error thrown when trying to improperly make attestations
     error No_External_Attestation();
     error Attestation_Already_Exists();
+    error Revocation_Failed();
 
     constructor(address[] memory modules, address router) AbstractPortal(modules, router) {
         require(modules.length == 0);
@@ -58,6 +63,10 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
 
     function configureNativeLib(NativeAttestPlatform platform, address lib) external onlyOwner {
         nativeVerifiers[platform] = lib;
+    }
+
+    function configureRevokeCallee(IRevokeMachinehoodAttestationCallee _revokeCallee) external onlyOwner {
+        revokeCallee = _revokeCallee;
     }
 
     function webAuthNAttestationSchemaId() public pure override returns (bytes32 WEBAUTHN_MACHINEHOOD_SCHEMA_ID) {
@@ -97,6 +106,15 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
             } else {
                 status = AttestationStatus.REGISTERED;
             }
+        }
+    }
+
+    function revokeMachinehoodAttestation(bytes32 attestationId, bytes[] calldata payload) external lock {
+        bool success = revokeCallee.verifyRevocationPayload(attestationId, payload);
+        if (!success) {
+            revert Revocation_Failed();
+        } else {
+            super.revoke(attestationId);
         }
     }
 
@@ -204,4 +222,8 @@ contract MachinehoodEntrypointPortal is Ownable, AbstractPortal, POMEntrypoint {
         AttestationPayload[] memory attestationsPayloads,
         bytes[][] memory validationPayloads
     ) internal override locked {}
+
+    function _onRevoke(bytes32 /*attestationId*/) internal locked override {}
+
+    function _onBulkRevoke(bytes32[] memory /*attestationIds*/) internal locked override {}
 }

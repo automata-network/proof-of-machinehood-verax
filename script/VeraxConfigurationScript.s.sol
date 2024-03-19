@@ -43,7 +43,7 @@ contract VeraxConfigurationScript is Script {
             address(portal),
             "Automata PoM Portal",
             "https://docs.ata.network/automata-2.0/proof-of-machinehood",
-            false, // not-revocable
+            true, // revocable (conditional)
             "Automata Network"
         );
         vm.stopBroadcast();
